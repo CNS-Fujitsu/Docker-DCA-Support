@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.1",
+    "parameters": {
+        "requiredModuleAZVnet-2a" : {
+            "type" : "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ]
+        },
+        "requiredModuleCentosVM-1a" : {
+            "type" : "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ]
+        },
+      "module-azVnet2a" : {
+        "type" : "object"
+      },
+      "module-CentosVM-1a" : {
+        "type" : "object"
+      },
+      "customTages": {
+        "type": "object"
+      }
+    },
+    "variables": {
+      "moduleStoreURL": "https://raw.githubusercontent.com/fujitsuk5/Azure-ARM-Modules/master/modules/",
+      "Module-azVnet2a-URL": "[concat(variables('moduleStoreURL'),'virtualNetworks/', 'azVnet-2a.json')]",
+      "Module-CentosVM1a-URL": "[concat(variables('moduleStoreURL'),'virtualmachines/', 'CentosVM1a.json')]"
+    },
+    "resources": [
+      {
+        "apiVersion": "2017-05-10",
+        "name": "azVnet-2a",
+        "comments": "Module to deploy a virtual network with 2 subnets",
+        "type": "Microsoft.Resources/deployments",
+        "condition": "[equals(parameters('requiredModuleAZVnet-2a'), 'Yes')]",
+        "properties" : {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[variables('Module-azVnet2a-URL')]",
+            "contentVersion": "1.0.0.1"
+          },
+          "parameters": {
+            "module-azVnet2a": {
+              "value": "[parameters('module-azVnet2a')]"
+            },
+            "customTages": {
+              "value": "[parameters('customTages')]"
+            }
+          }
+        }
+    },
+    {
+        "apiVersion": "2017-05-10",
+        "name": "CentosVM1a",
+        "comments": "Module to deploy a Centos 7 virtual Machine",
+        "type": "Microsoft.Resources/deployments",
+        "condition": "[equals(parameters('requiredModuleCentosVM-1a'), 'Yes')]",
+        "properties" : {
+          "mode": "Incremental",
+          "templateLink": {
+            "uri": "[variables('Module-CentosVM1a-URL')]",
+            "contentVersion": "1.0.0.1"
+          },
+          "parameters": {
+            "module-azVnet2a": {
+              "value": "[parameters('module-CentosVM-1a')]"
+            },
+            "customTages": {
+              "value": "[parameters('customTages')]"
+            }
+          }
+        }
+    }
+
+  ],
+    "outputs": {
+      
+    }
+  }

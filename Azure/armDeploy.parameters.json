@@ -1,0 +1,42 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters":{
+        "requiredModuleAZVnet-2a" : {
+            "value" : "Yes" 
+        },
+        "module-azVnet2a":{
+            "value":{
+                "vnetName" : "prod-ne1-vnet",
+                "vnetCIDR" : "10.0.0.0/16",
+                "subnets":[
+                    {
+                        "name": "prod-docker-mgmt-subnet",
+                        "addressPrefix": "10.0.0.0/24"
+                    },
+                    {
+                        "name":"prod-docker-node-subnet",
+                        "addressPrefix":"10.0.1.0/24"
+                    }
+                ]
+            }
+        },
+        "requiredModuleCentosVM-1a" : {
+            "value" : "Yes" 
+        },
+        "customTages": {
+            "value": {
+                "Application": "Docker",
+                "Environment": "Production",
+                "Version": "1.0.1",
+                "CreationDate": "12/11/2018",
+                "EndDate": "30/11/2018",
+                "CreatedBy": "Steve Owens",
+                "CostCentre": "CNETS",
+                "Customer": "N/A",
+                "Project": "Docker DCA",
+                "Data Classificiation":"Public"
+            }
+        }
+    }
+}
