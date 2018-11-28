@@ -4,6 +4,7 @@
 
 #Define User acount
     username="user" # You linux user account
+    storagedriver="devicemapper"
 
 #remove old version of docker
         yum remove -y docker \
@@ -27,10 +28,16 @@
     yum update -y
     yum install -y "docker-ce"
 
+
+
 #Start Docker Engine
     systemctl enable docker && systemctl start docker && systemctl status docker
 
 #Update docker group permission to alow more the root to run docker (Commnad only workds with Sudo su -)
     usermod -a -G docker ${username}
     cat /etc/group
-    
+
+#Configure Storage Driver
+    touch /etc/docker/daemon.json
+    echo '{"storage-driver":"'${storagedriver}'"}' >> /etc/docker/daemon.json
+    systemctl restart docker

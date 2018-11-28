@@ -6,6 +6,8 @@
     export username="user" # You linux user account
 #Define Repo Store URL - Get from Docker Store
     export EEREPO="https://storebits.docker.com/ee/trial/sub-a8c13ebb-fd06-4a31-abe2-e15b621af6ec"
+#Define storage driver
+    export storagedriver="devicemapper"
 
 #remove old version of docker
         yum remove -y docker \
@@ -47,6 +49,11 @@
 
 #Update docker group permission to alow more the root to run docker (Command only workds with Sudo su -)
     usermod -a -G docker ${username}
+
+#Configure Storage Driver
+    touch /etc/docker/daemon.json
+    echo '{"storage-driver":"'${storagedriver}'"}' >> /etc/docker/daemon.json
+    systemctl restart docker
 
 #Leave the Docker Swarm
 docker swarm leave --force
