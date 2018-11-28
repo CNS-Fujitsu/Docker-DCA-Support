@@ -39,6 +39,9 @@ Docker swarm join --token SWMTKN-1-3bn34bn3kbjb56jb5jktbnjbnjtnvjtn635j6v3j56v3j
 #Get swarm node info on the manager
 docker node ls
 
+#Make a swarm node a manager only node 
+docker node update -availabilitydrain {nodename}
+
 #Leave a swarm
 docker swarm leave
 
@@ -63,4 +66,5 @@ docker swarm init --force-new-cluster
 
 #Add labels to swarm nodes
  docker node update --label-add {key}={value} {node_id}
+
 

@@ -35,3 +35,6 @@ docker service create --name {servicename} --hostname="{{.Node.ID}}-{{.Service.N
 
 #Start a container on a node based on node tag
 docker container create --name {servicename} -p 8081:80 --constrain 'node.labels.{key} == {value}' --replicas {number} -- httpd
+
+ #rebalance services across swarm nodes after a node rebuild
+ docker service update --force {servicename}
