@@ -120,3 +120,19 @@ curl --insecure -u "admin:B52:bomb" https://myregistrydomain.com:5000/v2/busybox
 
 #Whats in your docker secure Registry with wget (--no-check-certificate ignore self signed certificate issue)
 wget --no-check-certificate --http-user=admin --http-password=B52:bomb https://myregistrydomain.com:5000/v2/_catalog
+
+#Sign a docker image on Secure Registry
+docker build -t myregistrydomain.com:5000/untrusted.latest .
+export DOCKER_CONTENT_TRUST=1
+echo $DOCKER_CONTENT_TRUST
+docker push myregistrydomain.com:5000/untrusted.latest:latest
+
+#Force Docker to only use trusted images
+export DOCKER_CONTENT_TRUST=1
+
+#push an image to docker hub (Security Scanning for Paid Docker Hub Accounts)
+docker login # provide username and password
+docker push {imagename}
+
+
+

@@ -3,11 +3,17 @@
 # pre-req - must be run with Root permssions
 
 #Define User acount
-    export username="user" # You linux user account
+        username="sowens" # You linux user account
 #Define Repo Store URL - Get from Docker Store
-    export EEREPO="https://storebits.docker.com/ee/trial/sub-a8c13ebb-fd06-4a31-abe2-e15b621af6ec"
+    EEREPO="https://storebits.docker.com/ee/trial/sub-a8c13ebb-fd06-4a31-abe2-e15b621af6ec"
 #Define storage driver
-    export storagedriver="devicemapper"
+    storagedriver="devicemapper"
+#Define the swarm role
+    swarmrole="manager" # manager, worker, none
+#Define swarm manager key
+    swarmmanagerkey="xxx"
+#Get the Node IP Address
+    nodeip=$(ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
 
 #remove old version of docker
         yum remove -y docker \
@@ -56,4 +62,17 @@
     systemctl restart docker
 
 #Leave the Docker Swarm
-docker swarm leave --force
+    docker swarm leave --force
+
+#Join Docker Swarm
+
+    if [ "$swarmrole" != "none" ]; then 
+        if [ "$swarmrole" = "manager" ]; then
+            docker swarm init --advertise-addr $nodeip
+        elif [ "$swarmrole" = "worker" ]; then
+            Docker swarm join --token ${swarmmanagerkey} ${nodeip}:2377
+        fi
+    fi
+
+
+## token=`docker -H app.swarm:2376 swarm join-token worker|grep token|awk '{print $5}'`
