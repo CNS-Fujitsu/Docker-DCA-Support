@@ -47,7 +47,7 @@
     "$DOCKERURL/centos/docker-ee.repo"
 
 #Install Docker EE
-    yum-config-manager --enable docker-ee-stable-17.06
+    yum-config-manager --enable docker-ee-stable-18.09
     yum -y install docker-ee
 
 #Start Docker Engine

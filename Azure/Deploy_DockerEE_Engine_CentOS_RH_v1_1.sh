@@ -11,7 +11,7 @@
 #   - manager (additional swarm manager in a swarm cluster)
 #   - worker (worker node in a swarm cluster)
 # Manager Host Name - Hostsname of swarm master (Not required if deploying firstmanager)
-set -E
+set -x
 
 #Define Repo Store URL - Get from Docker Store
     EEREPO="https://storebits.docker.com/ee/trial/sub-a8c13ebb-fd06-4a31-abe2-e15b621af6ec"
@@ -21,9 +21,9 @@ set -E
     username="${1}"
     storagedriver="${2}"
     swarmrole="${3}"
-    managername="{$4}"
-    
-
+    managername="${4}"
+    managerkey="SWMTKN-1-3ahuvpjc37d7fylrdccpztww76p04fq7kgg10ravs0r4ozur3l-ab7w0huc3ezlslbnpygupzful"
+    workerkey="SWMTKN-1-3ahuvpjc37d7fylrdccpztww76p04fq7kgg10ravs0r4ozur3l-ab7w0huc3ezlslbnpygupzful"
 
 validatevars() {
     #validate that varables are valid
@@ -36,16 +36,13 @@ validatevars() {
         elif [ -z "${3}" ]; then
         echo "The swarm role was not provided"
         exit 1
-        elif [ -z "${4}" ]; then
-        echo "No Username provided"
-        exit 1
-        elif [ ${4} = "manager" ]; then
-            if [ -z "${5}" ]; then
+        elif [ "${3}" = "manager" ]; then
+            if [ -z "${4}" ]; then
                 echo "The manager hostname was not provided"
                 exit 1
             fi
-        elif [ ${4} = "worker" ]; then
-            if [ -z "${5}" ]; then
+        elif [ "${3}" = "worker" ]; then
+            if [ -z "${4}" ]; then
                 echo "The manager hostname was not provided"
                 exit 1
             fi
@@ -55,7 +52,7 @@ validatevars() {
 
 dockerdaemoninstall() {
     #Configure the Repo
-        sh -c 'echo "'${1}'/centos" > /etc/yum/vars/dockerurl'
+        sh -c 'echo "'"${1}"'/centos" > /etc/yum/vars/dockerurl'
 
     #Install required packages
         yum install -y yum-utils \
@@ -66,7 +63,7 @@ dockerdaemoninstall() {
         yum-config-manager --add-repo "${1}/centos/docker-ee.repo"
 
     #Install Docker EE
-        yum-config-manager --enable docker-ee-stable-17.06
+        yum-config-manager --enable docker-ee-stable-18.09
         yum -y install docker-ee
 
     #Start Docker Engine
@@ -75,13 +72,13 @@ dockerdaemoninstall() {
 
 dockeruser() {
     #Update docker group permission to alow more the root to run docker (Command only workds with Sudo su -)
-        usermod -a -G docker ${1}
+        usermod -a -G docker "${1}"
     }
 
 dockerstoragedriver () {
     #Configure Storage Driver
         touch /etc/docker/daemon.json
-        echo '{"storage-driver":"'${1}'"}' >> /etc/docker/daemon.json
+        echo '{"storage-driver":"'"${1}"'"}' >> /etc/docker/daemon.json
         systemctl restart docker
     }
 
@@ -89,25 +86,27 @@ dockerswarmjoin() {
     #Join Docker Swarm
         if [ "${1}" != "none" ]; then 
             if [ "${1}" = "firstmanager" ]; then
-                docker swarm init --advertise-addr $(ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
+                docker swarm init --advertise-addr "$(ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)"
+                swnmanagerkey="$(docker swarm join-token manager)"
+                echo "swarmmanagerkey:'${swnmanagerkey}'"
+                swnworkerkey="$(docker swarm join-token worker)"
+                echo "swarmworkerkey:'${swnworkerkey}'"
             elif [ "${1}" = "manager" ]; then
-                token=$(docker -H ${2}:2376 swarm join-token manager|grep token|awk '{print $5}')
-                Docker swarm join --token ${token} ${2}:2377
+                docker swarm join --token "${3}" "${2}":2377
             elif [ "${1}" = "worker" ]; then
-                token=$(docker -H ${managername}:2376 swarm join-token worker|grep token|awk '{print $5}')
-                Docker swarm join --token ${token} ${2}:2377
+                docker swarm join --token "${4}" "${2}":2377
             fi
         fi
     }
 
 main() {
     #run script functions
-        validatevars ${1} ${2} ${3} ${4} ${5}
-        dockerdaemoninstall ${1}
-        dockeruser ${2}
-        dockerstoragedriver ${3}
-        dockerswarmjoin ${4} ${5}
+        validatevars "${2}" "${3}" "${4}" "${5}"
+        dockerdaemoninstall "${1}"
+        dockeruser "${2}"
+        dockerstoragedriver "${3}"
+        dockerswarmjoin "${4}" "${5}" "${6}" "${7}"
 }
 
 #Run the main script
-main ${EEREPO} ${username} ${storagedriver} ${swarmrole} ${managername}
+main "${EEREPO}" "${username}" "${storagedriver}" "${swarmrole}" "${managername}" "${managerkey}" "${workerkey}"
