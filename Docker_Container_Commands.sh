@@ -56,6 +56,9 @@ docker container run -it --rm --env MYVAR1=steve --env MYVAR2=owens --name mycon
 docker container run -d --name webserver1 --restart always httpd #Always restarts the docker container if the docker service is restarted but not if a manaul container stop is sent
 docker container run -d --name webserver1 --restart unless-stopped httpd # Wont restart if the container if the container had already been stopped before the docker service was restarted
 
+
+#Bind Mounting 
+
 #Docker run options
 docker container run --help
       --add-host list                  Add a custom host-to-IP mapping (host:ip)

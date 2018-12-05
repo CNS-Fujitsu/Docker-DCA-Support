@@ -40,7 +40,7 @@ Docker swarm join --token SWMTKN-1-3bn34bn3kbjb56jb5jktbnjbnjtnvjtn635j6v3j56v3j
 docker node ls
 
 #Make a swarm node a manager only node 
-docker node update -availabilitydrain {nodename}
+docker node update -availability drain {nodeid}
 
 #Leave a swarm
 docker swarm leave

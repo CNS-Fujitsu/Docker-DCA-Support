@@ -24,6 +24,7 @@ set -x
     managername="${4}"
     managerkey="SWMTKN-1-3ahuvpjc37d7fylrdccpztww76p04fq7kgg10ravs0r4ozur3l-ab7w0huc3ezlslbnpygupzful"
     workerkey="SWMTKN-1-3ahuvpjc37d7fylrdccpztww76p04fq7kgg10ravs0r4ozur3l-ab7w0huc3ezlslbnpygupzful"
+    stableversion="docker-ee-stable-18.09"
 
 validatevars() {
     #validate that varables are valid
@@ -63,7 +64,7 @@ dockerdaemoninstall() {
         yum-config-manager --add-repo "${1}/centos/docker-ee.repo"
 
     #Install Docker EE
-        yum-config-manager --enable docker-ee-stable-18.09
+        yum-config-manager --enable ${2}
         yum -y install docker-ee
 
     #Start Docker Engine
@@ -102,11 +103,11 @@ dockerswarmjoin() {
 main() {
     #run script functions
         validatevars "${2}" "${3}" "${4}" "${5}"
-        dockerdaemoninstall "${1}"
+        dockerdaemoninstall "${1}" "${8}"
         dockeruser "${2}"
         dockerstoragedriver "${3}"
         dockerswarmjoin "${4}" "${5}" "${6}" "${7}"
 }
 
 #Run the main script
-main "${EEREPO}" "${username}" "${storagedriver}" "${swarmrole}" "${managername}" "${managerkey}" "${workerkey}"
+main "${EEREPO}" "${username}" "${storagedriver}" "${swarmrole}" "${managername}" "${managerkey}" "${workerkey}" "${stableversion}"
